@@ -4,10 +4,15 @@ import "./App.css";
 function App() {
   const [loading, setLoading] = useState(false);
   const [searchTermsInput, setSearchTermsInput] = useState("");
+  const [twitterHandlesInput, setTwitterHandlesInput] = useState("");
   const [data, setData] = useState(undefined);
 
   const handleSearchTermsChange = (e) => {
     setSearchTermsInput(e.target.value);
+  };
+
+  const handleTwitterHandlesChange = (e) => {
+    setTwitterHandlesInput(e.target.value);
   };
 
   const handleFetchData = async () => {
@@ -20,22 +25,28 @@ function App() {
       apiToken;
 
     const inputSearchTerms = searchTermsInput
-      .split(",")
-      .map((term) => term.trim());
+      ? searchTermsInput.split(",").map((term) => term.trim())
+      : null;
+
+    const inputTwitterHandles = twitterHandlesInput
+      ? twitterHandlesInput.split(",").map((handle) => handle.trim())
+      : null;
 
     const input = {
       customMapFunction: "(object) => { return {...object} }",
-      maxItems: 50,
+      maxItems: 5,
       maxTweetsPerQuery: 50,
       minimumFavorites: 0,
       minimumReplies: 0,
       minimumRetweets: 0,
       onlyImage: false,
       onlyQuote: false,
+      geocode: "54.6014331,-5.9300267,10km",
       onlyTwitterBlue: false,
       onlyVerifiedUsers: false,
       onlyVideo: false,
-      searchTerms: inputSearchTerms,
+      ...(inputSearchTerms && { searchTerms: inputSearchTerms }),
+      ...(inputTwitterHandles && { twitterHandles: inputTwitterHandles }),
       sort: "Top",
       tweetLanguage: "en",
     };
@@ -54,6 +65,8 @@ function App() {
       }
 
       const data = await response.json();
+
+      console.log("response-", response.data);
 
       setData(data);
     } catch (error) {
@@ -74,6 +87,16 @@ function App() {
           value={searchTermsInput}
           onChange={handleSearchTermsChange}
           placeholder="e.g., green day, avril lavigne"
+        />
+      </label>
+      <label className="block mb-4">
+        Twitter Handles (comma-separated):
+        <input
+          className="border border-blue p-2 w-full"
+          type="text"
+          value={twitterHandlesInput}
+          onChange={handleTwitterHandlesChange}
+          placeholder="e.g., ThePaulMcBride"
         />
       </label>
       <div className="flex w-full justify-end">
