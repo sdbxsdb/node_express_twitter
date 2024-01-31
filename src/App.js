@@ -19,12 +19,10 @@ function App() {
       "https://api.apify.com/v2/acts/apidojo~tweet-scraper/run-sync-get-dataset-items?token=" +
       apiToken;
 
-    // Convert the input string to an array of search terms
     const inputSearchTerms = searchTermsInput
       .split(",")
       .map((term) => term.trim());
 
-    // Specify your input payload here
     const input = {
       customMapFunction: "(object) => { return {...object} }",
       maxItems: 50,
@@ -43,7 +41,6 @@ function App() {
     };
 
     try {
-      // Make a POST request to run the Actor synchronously and get dataset items
       const response = await fetch(apiUrl, {
         method: "POST",
         headers: {
@@ -66,8 +63,6 @@ function App() {
     }
   };
 
-  console.log("DATA-", data);
-
   return (
     <div className="container mx-auto mt-8 p-8 border rounded-lg shadow-lg">
       <p className="text-center font-bold text-xl mb-4">Tweets by keyword</p>
@@ -78,18 +73,20 @@ function App() {
           type="text"
           value={searchTermsInput}
           onChange={handleSearchTermsChange}
-          placeholder="e.g., green day, billie joe armstrong"
+          placeholder="e.g., green day, avril lavigne"
         />
       </label>
-      <button
-        onClick={handleFetchData}
-        disabled={loading}
-        className={`bg-blue-500 text-white p-2 rounded ${
-          loading ? "opacity-50 cursor-not-allowed" : ""
-        }`}
-      >
-        {loading ? "Fetching..." : "Fetch Data"}
-      </button>
+      <div className="flex w-full justify-end">
+        <button
+          onClick={handleFetchData}
+          disabled={loading}
+          className={`bg-blue-500 text-white p-2 float rounded ${
+            loading ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+        >
+          {loading ? "Fetching..." : "Fetch Tweets"}
+        </button>
+      </div>
 
       {data && (
         <div className="mt-8">
@@ -148,7 +145,7 @@ function App() {
                       key={index}
                       src={media}
                       controls
-                      className="my-2 rounded-lg shadow-md"
+                      className="my-2 rounded-lg shadow-md max-h-[600px]"
                     ></video>
                   ) : (
                     <img
