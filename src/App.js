@@ -114,6 +114,7 @@ function App() {
       <label className="block mb-4">
         Search Terms (comma-separated):
         <input
+          disabled={twitterHandlesInput || geocodeInput || distance}
           className="border border-red p-2 w-full"
           type="text"
           value={searchTermsInput}
@@ -124,6 +125,7 @@ function App() {
       <label className="block mb-4">
         Twitter Handles (comma-separated):
         <input
+          disabled={searchTermsInput || geocodeInput || distance}
           className="border border-blue p-2 w-full"
           type="text"
           value={twitterHandlesInput}
@@ -135,6 +137,7 @@ function App() {
         <label className="block mb-4 w-11/12">
           Geocode (lat,long):
           <input
+            disabled={searchTermsInput || twitterHandlesInput}
             className="border border-blue p-2 w-full"
             type="text"
             value={geocodeInput}
@@ -145,6 +148,7 @@ function App() {
         <label className="block mb-4">
           Distance (km):
           <input
+            disabled={searchTermsInput || twitterHandlesInput}
             className="border border-blue p-2 w-full"
             type="text"
             value={distance}
