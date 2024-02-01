@@ -6,14 +6,24 @@ function App() {
   const [searchTermsInput, setSearchTermsInput] = useState("");
   const [twitterHandlesInput, setTwitterHandlesInput] = useState("");
   const [geocodeInput, setGeocodeInput] = useState("");
+  const [follow, setFollow] = useState("");
   const [distance, setDistance] = useState("");
   const [data, setData] = useState(undefined);
+  const [followData, setFollowData] = useState(undefined);
+  const [radioOption, setRadioOption] = useState("followers");
 
   const removeSpaces = (inputString) => {
     const resultString = inputString.replace(/\s+/g, "");
     return resultString;
   };
 
+  const handleRadioChange = (option) => {
+    setRadioOption(option);
+  };
+
+  const handleFollowChange = (e) => {
+    setFollow(e.target.value);
+  };
   const handleSearchTermsChange = (e) => {
     setSearchTermsInput(e.target.value);
   };
@@ -65,14 +75,13 @@ function App() {
 
     const input = {
       customMapFunction: "(object) => { return {...object} }",
-      maxItems: 5,
-      maxTweetsPerQuery: 50,
+      maxItems: 20,
+      maxTweetsPerQuery: 20,
       minimumFavorites: 0,
       minimumReplies: 0,
       minimumRetweets: 0,
       onlyImage: false,
       onlyQuote: false,
-      // geocode: "54.6014331,-5.9300267,10km",
       onlyTwitterBlue: false,
       onlyVerifiedUsers: false,
       onlyVideo: false,
@@ -98,8 +107,6 @@ function App() {
 
       const data = await response.json();
 
-      console.log("response-", response.data);
-
       setData(data);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -108,13 +115,58 @@ function App() {
     }
   };
 
+  const handleFollowersAndFollowingData = async () => {
+    setLoading(true);
+
+    const apiToken = "apify_api_5N2jPVDR7eboInkTo99ugeK19hNQ0L2PztR4";
+
+    const apiUrl =
+      "https://api.apify.com/v2/acts/apidojo~twitter-user-scraper/run-sync-get-dataset-items?token=" +
+      apiToken;
+
+    const input = {
+      maxItems: 50,
+      twitterHandles: [follow],
+      getFollowers: radioOption === "followers",
+      getFollowing: radioOption === "following",
+      getRetweeters: false,
+      getFavorites: false,
+      customMapFunction: "(object) => { return {...object} }",
+    };
+
+    try {
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(input),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch data from Apify");
+      }
+
+      const data = await response.json();
+
+      console.log("DATA-", data);
+      setFollowData(data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  console.log("DATA-", data);
+
   return (
     <div className="container mx-auto mt-8 p-8 border rounded-lg shadow-lg">
       <p className="text-center font-bold text-xl mb-4">Tweets by keyword</p>
       <label className="block mb-4">
         Search Terms (comma-separated):
         <input
-          disabled={twitterHandlesInput || geocodeInput || distance}
+          disabled={twitterHandlesInput || geocodeInput || distance || follow}
           className="border border-red p-2 w-full"
           type="text"
           value={searchTermsInput}
@@ -125,7 +177,7 @@ function App() {
       <label className="block mb-4">
         Twitter Handles (comma-separated):
         <input
-          disabled={searchTermsInput || geocodeInput || distance}
+          disabled={searchTermsInput || geocodeInput || distance || follow}
           className="border border-blue p-2 w-full"
           type="text"
           value={twitterHandlesInput}
@@ -135,9 +187,48 @@ function App() {
       </label>
       <div className="flex gap-4">
         <label className="block mb-4 w-11/12">
+          Followers / Following for a user Handles:
+          <input
+            disabled={
+              searchTermsInput ||
+              geocodeInput ||
+              distance ||
+              twitterHandlesInput
+            }
+            className="border border-blue p-2 w-full"
+            type="text"
+            value={follow}
+            onChange={handleFollowChange}
+            placeholder="e.g. ThePaulMcBride"
+          />
+        </label>
+
+        <div className="flex items-center mb-4">
+          <label className="mr-4">
+            <input
+              type="radio"
+              value="followers"
+              checked={radioOption === "followers"}
+              onChange={() => handleRadioChange("followers")}
+            />
+            Followers
+          </label>
+          <label>
+            <input
+              type="radio"
+              value="following"
+              checked={radioOption === "following"}
+              onChange={() => handleRadioChange("following")}
+            />
+            Following
+          </label>
+        </div>
+      </div>
+      <div className="flex gap-4">
+        <label className="block mb-4 w-11/12">
           Geocode (lat,long):
           <input
-            disabled={searchTermsInput || twitterHandlesInput}
+            disabled={searchTermsInput || twitterHandlesInput || follow}
             className="border border-blue p-2 w-full"
             type="text"
             value={geocodeInput}
@@ -148,7 +239,7 @@ function App() {
         <label className="block mb-4">
           Distance (km):
           <input
-            disabled={searchTermsInput || twitterHandlesInput}
+            disabled={searchTermsInput || twitterHandlesInput || follow}
             className="border border-blue p-2 w-full"
             type="text"
             value={distance}
@@ -159,7 +250,7 @@ function App() {
       </div>
       <div className="flex w-full justify-end">
         <button
-          onClick={handleFetchData}
+          onClick={follow ? handleFollowersAndFollowingData : handleFetchData}
           disabled={loading}
           className={`bg-blue-500 text-white p-2 float rounded ${
             loading ? "opacity-50 cursor-not-allowed" : ""
@@ -238,6 +329,85 @@ function App() {
                   )
                 )}
               </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {followData && (
+        <div className="mt-8">
+          <div className="border p-4 mb-4 rounded-lg shadow-md">
+            <p>
+              <strong>Searched for Handle:</strong> {followData[0].name}
+              {followData[0].username}
+            </p>
+            <p>
+              <strong>Cover Picture:</strong>{" "}
+              <img
+                src={followData[0].coverPicture}
+                alt="Profile"
+                className="w-full object-contain"
+              />
+            </p>
+            <p>
+              <strong>Profile Picture:</strong>{" "}
+              <img
+                src={followData[0].profilePicture}
+                alt="Profile"
+                className="rounded-full w-16 h-16 object-cover"
+              />
+            </p>
+            <p>
+              <strong>Bio:</strong> {followData[0].description}
+            </p>
+            <p>
+              <strong>Followers:</strong> {followData[0].followers}
+            </p>
+            <p>
+              <strong>Following:</strong> {followData[0].following}
+            </p>
+            <p>
+              <strong>Location:</strong> {followData[0].location}
+            </p>
+          </div>
+
+          <div className="mb-4 mt-12">
+            <p>
+              <strong>
+                {followData[0].name} is{" "}
+                {radioOption === "followers" ? "Followers" : "following"}:
+              </strong>
+            </p>
+          </div>
+
+          {followData?.slice(1).map((item) => (
+            <div key={item.id} className="border p-4 mb-4 rounded-lg shadow-md">
+              <p>
+                <strong>Profile Picture:</strong>{" "}
+                <img
+                  src={item.profilePicture}
+                  alt="Profile"
+                  className="rounded-full w-16 h-16 object-cover"
+                />
+              </p>
+              <p>
+                <strong>Username:</strong> {item.userName}
+              </p>
+              <p>
+                <strong>Name:</strong> {item.name}
+              </p>
+              <p>
+                <strong>Description:</strong> {item.description}
+              </p>
+              <p>
+                <strong>Followers:</strong> {item.followers}
+              </p>
+              <p>
+                <strong>Following:</strong> {item.following}
+              </p>
+              <p>
+                <strong>Media Count:</strong> {item.mediaCount}
+              </p>
             </div>
           ))}
         </div>
