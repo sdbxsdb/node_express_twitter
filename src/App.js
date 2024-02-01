@@ -5,7 +5,14 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [searchTermsInput, setSearchTermsInput] = useState("");
   const [twitterHandlesInput, setTwitterHandlesInput] = useState("");
+  const [geocodeInput, setGeocodeInput] = useState("");
+  const [distance, setDistance] = useState("");
   const [data, setData] = useState(undefined);
+
+  const removeSpaces = (inputString) => {
+    const resultString = inputString.replace(/\s+/g, "");
+    return resultString;
+  };
 
   const handleSearchTermsChange = (e) => {
     setSearchTermsInput(e.target.value);
@@ -13,6 +20,14 @@ function App() {
 
   const handleTwitterHandlesChange = (e) => {
     setTwitterHandlesInput(e.target.value);
+  };
+
+  const handleGeocodeChange = (e) => {
+    setGeocodeInput(e.target.value);
+  };
+
+  const handleDistanceChange = (e) => {
+    setDistance(e.target.value);
   };
 
   const handleFetchData = async () => {
@@ -32,6 +47,22 @@ function App() {
       ? twitterHandlesInput.split(",").map((handle) => handle.trim())
       : null;
 
+    const inputDistance = distance ? distance.trim() + "km" : null;
+
+    const inputGeocode = geocodeInput
+      ? geocodeInput
+          .split(",")
+          .map((handle) => {
+            const trimmedHandle = removeSpaces(handle.trim());
+            // Use parseFloat to convert to a floating-point number, and then use toFixed(7)
+            // to limit to 7 decimal places
+            return parseFloat(trimmedHandle).toFixed(7);
+          })
+          .join(",") +
+        "," +
+        inputDistance
+      : null;
+
     const input = {
       customMapFunction: "(object) => { return {...object} }",
       maxItems: 5,
@@ -41,10 +72,11 @@ function App() {
       minimumRetweets: 0,
       onlyImage: false,
       onlyQuote: false,
-      geocode: "54.6014331,-5.9300267,10km",
+      // geocode: "54.6014331,-5.9300267,10km",
       onlyTwitterBlue: false,
       onlyVerifiedUsers: false,
       onlyVideo: false,
+      ...(inputGeocode && { geocode: inputGeocode }),
       ...(inputSearchTerms && { searchTerms: inputSearchTerms }),
       ...(inputTwitterHandles && { twitterHandles: inputTwitterHandles }),
       sort: "Top",
@@ -86,7 +118,7 @@ function App() {
           type="text"
           value={searchTermsInput}
           onChange={handleSearchTermsChange}
-          placeholder="e.g., green day, avril lavigne"
+          placeholder="e.g. green day, avril lavigne"
         />
       </label>
       <label className="block mb-4">
@@ -96,9 +128,31 @@ function App() {
           type="text"
           value={twitterHandlesInput}
           onChange={handleTwitterHandlesChange}
-          placeholder="e.g., ThePaulMcBride"
+          placeholder="e.g. ThePaulMcBride"
         />
       </label>
+      <div className="flex gap-4">
+        <label className="block mb-4 w-11/12">
+          Geocode (lat,long):
+          <input
+            className="border border-blue p-2 w-full"
+            type="text"
+            value={geocodeInput}
+            onChange={handleGeocodeChange}
+            placeholder="e.g. 54.6014331,-5.9300267"
+          />
+        </label>
+        <label className="block mb-4">
+          Distance (km):
+          <input
+            className="border border-blue p-2 w-full"
+            type="text"
+            value={distance}
+            onChange={handleDistanceChange}
+            placeholder="e.g. 10"
+          />
+        </label>
+      </div>
       <div className="flex w-full justify-end">
         <button
           onClick={handleFetchData}
