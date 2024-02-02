@@ -299,9 +299,6 @@ function App() {
                 <strong>Bookmark Count:</strong> {item.bookmarkCount}
               </p>
               <p>
-                <strong>View Count:</strong> {item.viewCount}
-              </p>
-              <p>
                 <strong>Is Verified:</strong>{" "}
                 {item.author.isVerified ? "Yes" : "No"}
               </p>
@@ -309,6 +306,63 @@ function App() {
               <p>
                 <strong>Tweet Text:</strong> {item.text}
               </p>
+              {item.quote && (
+                <div className="pl-12 mt-4">
+                  <p>
+                    <strong>Quoting:</strong> {item.quote?.authorName}
+                  </p>
+                  <p>
+                    <strong>Created At:</strong> {item.quote?.createdAt}
+                  </p>
+                  <p>
+                    <strong>Bookmark Count:</strong> {item.quote?.bookmarkCount}
+                  </p>
+                  <p>
+                    <strong>Like Count:</strong> {item.quote?.likeCount}
+                  </p>
+                  <p>
+                    <strong>Quote Count:</strong> {item.quote?.quoteCount}
+                  </p>
+                  <p>
+                    <strong>Reply Count:</strong> {item.quote?.replyCount}
+                  </p>
+                  <p>
+                    <strong>ReTweet Count:</strong> {item.quote?.retweetCount}
+                  </p>
+                  <p>
+                    <strong>Text:</strong> {item.quote?.text}
+                  </p>
+                </div>
+              )}
+              {item.retweet && (
+                <div className="pl-12 mt-4">
+                  <p>
+                    <strong>Retweet of:</strong> {item.retweet?.authorName}
+                  </p>
+                  <p>
+                    <strong>Created At:</strong> {item.retweet?.createdAt}
+                  </p>
+                  <p>
+                    <strong>Like Count:</strong> {item.retweet?.likeCount}
+                  </p>
+                  <p>
+                    <strong>Quote Count:</strong> {item.retweet?.quoteCount}
+                  </p>
+                  <p>
+                    <strong>Bookmark Count:</strong>{" "}
+                    {item.retweet?.bookmarkCount}
+                  </p>
+                  <p>
+                    <strong>Reply Count:</strong> {item.retweet?.replyCount}
+                  </p>
+                  <p>
+                    <strong>ReTweet Count:</strong> {item.retweet?.retweetCount}
+                  </p>
+                  <p>
+                    <strong>Text:</strong> {item.retweet?.text}
+                  </p>
+                </div>
+              )}
 
               <div className="flex flex-wrap gap-4 w-full justify-center">
                 {item?.media?.map((media, index) =>
