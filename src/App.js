@@ -284,6 +284,14 @@ function App() {
                 <strong>Retweets:</strong> {item.retweetCount}
               </p>
               <p>
+                <strong>User Mentions:</strong>{" "}
+                {item?.author?.entities?.description?.user_mentions?.map(
+                  (singleUserMention) => (
+                    <p className="pl-4">{singleUserMention.screen_name}</p>
+                  )
+                )}
+              </p>
+              <p>
                 <strong>Likes:</strong> {item.likeCount}
               </p>
               <p>
